@@ -26,7 +26,7 @@ flowchart LR
 ---
 
 Entities:
-USER: user_id, user_name, other_details, created_at
+USER: user_id, user_name,bearer_token, other_details, created_at
 WALLET: wallet_id, user_id, balance_paise, created_at, updated_at
 TRANSFER: transfer_id, from_wallet_id, to_wallet_id, amount_paise, idempotency_key, status, created_at, updated_at
 TRANSFER STATUS: PENDING, SUCCESS, DECLINED
