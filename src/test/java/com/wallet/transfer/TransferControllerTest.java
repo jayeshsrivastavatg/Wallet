@@ -197,4 +197,18 @@ class TransferControllerTest {
                 "idempotency_key", key
         ));
     }
+
+    // ── Idempotency conflict ──────────────────────────────────────────────────
+
+    @Test
+    void postTransfer_idempotencyConflict_returns409() throws Exception {
+        when(transferService.executeTransfer(any(), any(), any(Long.class), any(), any()))
+                .thenThrow(new IdempotencyConflictException("key-conflict"));
+
+        mockMvc.perform(post("/transfers")
+                        .header("Authorization", "Bearer " + TOKEN)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(validBody(FROM_WALLET, TO_WALLET, 100L, "key-conflict")))
+                .andExpect(status().isConflict());
+    }
 }
