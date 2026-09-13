@@ -1,3 +1,13 @@
+FROM node:20-alpine AS frontend-build
+
+WORKDIR /frontend
+
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci
+
+COPY frontend/ ./
+RUN npm run build
+
 FROM eclipse-temurin:17-jdk-jammy AS build
 
 WORKDIR /workspace
@@ -7,6 +17,7 @@ COPY mvnw pom.xml ./
 RUN chmod +x mvnw && ./mvnw -q -DskipTests dependency:go-offline
 
 COPY src src
+COPY --from=frontend-build /frontend/dist src/main/resources/static
 RUN ./mvnw -q -DskipTests package
 
 FROM eclipse-temurin:17-jre-jammy
