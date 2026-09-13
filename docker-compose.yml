@@ -1,0 +1,35 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${DB_NAME:-wallet_db}
+      POSTGRES_USER: ${DB_USER:-wallet_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-wallet_pass}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U ${DB_USER:-wallet_user} -d ${DB_NAME:-wallet_db}
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-wallet_db}
+      DB_USER: ${DB_USER:-wallet_user}
+      DB_PASSWORD: ${DB_PASSWORD:-wallet_pass}
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
