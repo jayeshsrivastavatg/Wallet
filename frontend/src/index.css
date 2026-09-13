@@ -1,0 +1,203 @@
+/* ─── Reset / base ─────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  background: #f5f5f5;
+  color: #222;
+}
+
+/* ─── Layout ────────────────────────────────────────────────────────────────── */
+.app {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+h1 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 10px;
+}
+
+/* ─── Cards / sections ──────────────────────────────────────────────────────── */
+.card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+}
+
+.card h2 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #555;
+  margin-bottom: 12px;
+}
+
+/* ─── Form rows ─────────────────────────────────────────────────────────────── */
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+label {
+  min-width: 150px;
+  font-weight: 500;
+  color: #444;
+}
+
+input[type="text"],
+input[type="number"] {
+  flex: 1;
+  min-width: 200px;
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: monospace;
+}
+
+input[readonly] {
+  background: #f0f0f0;
+  color: #555;
+  cursor: default;
+}
+
+/* ─── Buttons ───────────────────────────────────────────────────────────────── */
+button {
+  padding: 7px 14px;
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.1s;
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-primary   { background: #2563eb; color: #fff; }
+.btn-primary:hover:not(:disabled)   { background: #1d4ed8; }
+
+.btn-secondary { background: #6b7280; color: #fff; }
+.btn-secondary:hover:not(:disabled) { background: #4b5563; }
+
+.btn-warn      { background: #d97706; color: #fff; }
+.btn-warn:hover:not(:disabled)      { background: #b45309; }
+
+.btn-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+/* ─── Info display ──────────────────────────────────────────────────────────── */
+.info-row {
+  margin: 6px 0;
+  display: flex;
+  gap: 8px;
+}
+
+.info-row .key {
+  min-width: 150px;
+  color: #555;
+  font-weight: 500;
+}
+
+.info-row .value {
+  font-family: monospace;
+  word-break: break-all;
+}
+
+/* ─── Status badges ─────────────────────────────────────────────────────────── */
+.status-SUCCESS  { color: #16a34a; font-weight: 700; }
+.status-DECLINED { color: #dc2626; font-weight: 700; }
+.status-PENDING  { color: #d97706; font-weight: 700; }
+
+/* ─── Error / notice banners ────────────────────────────────────────────────── */
+.error {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  color: #b91c1c;
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin-top: 8px;
+  font-size: 13px;
+}
+
+.error.conflict {
+  background: #fffbeb;
+  border-color: #fcd34d;
+  color: #92400e;
+}
+
+.notice {
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  color: #166534;
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin-top: 8px;
+  font-size: 13px;
+}
+
+/* ─── Debug panel ───────────────────────────────────────────────────────────── */
+.debug {
+  background: #1e1e2e;
+  color: #cdd6f4;
+  border-radius: 6px;
+  padding: 16px 20px;
+  margin-top: 16px;
+}
+
+.debug h2 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #89b4fa;
+  margin-bottom: 12px;
+}
+
+.debug .debug-row {
+  margin: 6px 0;
+}
+
+.debug .debug-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #a6adc8;
+  margin-bottom: 2px;
+}
+
+.debug pre {
+  background: #181825;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-family: 'Menlo', 'Consolas', monospace;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: #cdd6f4;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.http-method { color: #89dceb; font-weight: 700; }
+.http-ok     { color: #a6e3a1; }
+.http-err    { color: #f38ba8; }
