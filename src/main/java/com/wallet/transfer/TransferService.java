@@ -4,6 +4,9 @@ import com.wallet.wallet.Wallet;
 import com.wallet.wallet.WalletAccessDeniedException;
 import com.wallet.wallet.WalletNotFoundException;
 import com.wallet.wallet.WalletRepository;
+import io.micrometer.core.instrument.MeterRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,16 +14,23 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
+import static net.logstash.logback.argument.StructuredArguments.kv;
+
 @Service
 public class TransferService {
 
+    private static final Logger log = LoggerFactory.getLogger(TransferService.class);
+
     private final TransferRepository transferRepository;
     private final WalletRepository   walletRepository;
+    private final MeterRegistry      meterRegistry;
 
     public TransferService(TransferRepository transferRepository,
-                           WalletRepository walletRepository) {
+                           WalletRepository walletRepository,
+                           MeterRegistry meterRegistry) {
         this.transferRepository = transferRepository;
         this.walletRepository   = walletRepository;
+        this.meterRegistry      = meterRegistry;
     }
 
     /**
@@ -110,6 +120,42 @@ public class TransferService {
                             + ": expected 1 updated row but got " + updated);
         }
 
+        meterRegistry.counter("wallet.transfer.created").increment();
+        log.info("Transfer created",
+                kv("event", "TRANSFER_CREATED"),
+                kv("transfer_id", newTransferId),
+                kv("from_wallet_id", fromWalletId),
+                kv("to_wallet_id", toWalletId),
+                kv("amount_paise", amountPaise),
+                kv("status", finalStatus.name()));
+
+        if (finalStatus == TransferStatus.DECLINED) {
+            meterRegistry.counter("wallet.transfer.declined",
+                    "reason", "insufficient_funds").increment();
+
+            log.warn("Transfer declined",
+                    kv("event", "TRANSFER_DECLINED"),
+                    kv("reason", "insufficient_funds"),
+                    kv("transfer_id", newTransferId),
+                    kv("from_wallet_id", fromWalletId),
+                    kv("amount_paise", amountPaise),
+                    kv("balance_paise", fromWallet.getBalancePaise()));
+        } else {
+            log.info("Wallet debited",
+                    kv("event", "WALLET_DEBITED"),
+                    kv("transfer_id", newTransferId),
+                    kv("wallet_id", fromWalletId),
+                    kv("amount_paise", amountPaise),
+                    kv("balance_after_paise", fromWallet.getBalancePaise()));
+
+            log.info("Wallet credited",
+                    kv("event", "WALLET_CREDITED"),
+                    kv("transfer_id", newTransferId),
+                    kv("wallet_id", toWalletId),
+                    kv("amount_paise", amountPaise),
+                    kv("balance_after_paise", toWallet.getBalancePaise()));
+        }
+
         return new TransferResponse(newTransferId, finalStatus);
     }
 
@@ -157,6 +203,12 @@ public class TransferService {
         if (!sameParams) {
             throw new IdempotencyConflictException(idempotencyKey);
         }
+
+        meterRegistry.counter("wallet.idempotent.replays").increment();
+        log.info("Idempotent replay",
+                kv("event", "IDEMPOTENT_REPLAY"),
+                kv("transfer_id", existing.getTransferId()),
+                kv("status", existing.getStatus().name()));
 
         return new TransferResponse(existing.getTransferId(), existing.getStatus());
     }

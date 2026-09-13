@@ -4,6 +4,7 @@ import com.wallet.wallet.Wallet;
 import com.wallet.wallet.WalletAccessDeniedException;
 import com.wallet.wallet.WalletNotFoundException;
 import com.wallet.wallet.WalletRepository;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,6 +31,7 @@ class TransferServiceTest {
     @Mock private WalletRepository   walletRepository;
 
     private TransferService transferService;
+    private SimpleMeterRegistry meterRegistry;
 
     // Fixed UUIDs — FROM_WALLET < TO_WALLET in compareTo ordering.
     private static final UUID USER_A_ID   = UUID.fromString("00000000-0000-0000-0000-000000000001");
@@ -40,7 +42,9 @@ class TransferServiceTest {
 
     @BeforeEach
     void setUp() {
-        transferService = new TransferService(transferRepository, walletRepository);
+        meterRegistry = new SimpleMeterRegistry();
+        transferService = new TransferService(
+                transferRepository, walletRepository, meterRegistry);
     }
 
     // ── Successful transfer (new idempotency key) ────────────────────────────

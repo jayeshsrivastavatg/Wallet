@@ -16,7 +16,7 @@ import java.util.Optional;
 /**
  * Stateless bearer-token authentication filter.
  *
- * <p>For every request (except {@code /actuator/health}):
+ * <p>For every request except the public health and Prometheus endpoints:
  * <ol>
  *   <li>Reads the {@code Authorization} header.</li>
  *   <li>Requires the value to match {@code Bearer <token>}.</li>
@@ -45,7 +45,9 @@ public class AuthFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        return "/actuator/health".equals(request.getRequestURI());
+        String path = request.getRequestURI();
+        return "/actuator/health".equals(path)
+                || "/actuator/prometheus".equals(path);
     }
 
     // ── Core logic ───────────────────────────────────────────────────────────
